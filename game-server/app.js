@@ -20,8 +20,6 @@ socket.on('connect', (client) => {
   const player = game.addPlayer(client.id);
   client.join(player.roomId);
   socket.to(client.id).emit('added', player);
-  const room = game.getRoom(player.roomId);
-  socket.to(player.roomId).emit('joined', room.players);
 
   client.on('disconnect', () => {
     console.log(`Client disconnected:${client.id}`);

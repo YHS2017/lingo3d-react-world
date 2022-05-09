@@ -96,8 +96,10 @@ const App = () => {
   }
 
   const onkeydown = (key: any) => {
-    keys.current.push(key);
-    keychange(keys.current);
+    if (!keys.current.includes(key)) {
+      keys.current.push(key);
+      keychange(keys.current);
+    }
     if (key === "Insert") {
       setCanEditor(!CanEditor);
     }
