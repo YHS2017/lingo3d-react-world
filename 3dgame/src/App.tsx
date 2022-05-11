@@ -140,7 +140,8 @@ const App = () => {
     }
     Players.forEach((player: any) => {
       if (player.motion === "run" && player.ref.current) {
-        player.ref.current.moveForward(-6);
+        player.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 6);
+        player.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 6);
       }
     })
   })
