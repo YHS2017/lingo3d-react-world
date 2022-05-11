@@ -18,8 +18,14 @@ const game = new Game();
 socket.on('connect', (client) => {
   console.log(`Client connected:${client.id}`);
   const player = game.addPlayer(client.id);
-  client.join(player.roomId);
-  socket.to(client.id).emit('added', player);
+  const room = game.getRoom(player.roomId);
+  socket.to(client.id).emit('connected', { player, players: room.players.filter(p => p.id !== player.id) });
+
+  client.on('join', (joinplayer) => {
+    console.log(`Client joined:${client.id}`);
+    client.join(joinplayer.roomId);
+    socket.to(joinplayer.roomId).emit('joined', joinplayer);
+  })
 
   client.on('disconnect', () => {
     console.log(`Client disconnected:${client.id}`);
@@ -31,8 +37,8 @@ socket.on('connect', (client) => {
     }
   });
 
-  client.on('update', (prv_player) => {
-    socket.to(prv_player.roomId).emit('update', prv_player);
+  client.on('update', (update_player) => {
+    socket.to(update_player.roomId).emit('update', update_player);
   });
 });
 

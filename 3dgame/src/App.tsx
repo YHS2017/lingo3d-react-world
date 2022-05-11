@@ -1,5 +1,5 @@
 import { World, Model, ThirdPersonCamera, Skybox, Joystick, Keyboard, usePreload, Editor, Toolbar, SceneGraph, useLoop } from "lingo3d-react"
-import { createRef, useEffect, useState, useCallback, useRef } from "react"
+import { createRef, useEffect, useState, useRef } from "react"
 import socket from "./utils/socket"
 
 const App = () => {
@@ -12,11 +12,14 @@ const App = () => {
     "sky2.jpeg"
   ], "65.7mb")
 
+  // 相机
+  const camera = useRef<any>();
+
   // 其他玩家
   const [Players, setPlayers] = useState<any[]>([]);
 
   // 当前玩家
-  const [Me, setMe] = useState<any>([]);
+  const [Me, setMe] = useState<any>({});
 
   // 按键
   const keys = useRef<any[]>([]);
@@ -27,43 +30,46 @@ const App = () => {
   // 编辑开关
   const [CanEditor, setCanEditor] = useState(false);
 
-  // 初始化socket事件监听
-  const initSocketListener = useCallback(() => {
-    socket.on("added", (player) => {
-      setMe((oldMe: any) => ({ ...oldMe, ...player, ref: createRef() }));
-    })
-
-    socket.on("leaved", (playerid) => {
-      setPlayers((oldPlayers: any) => oldPlayers.filter((player: any) => player.id !== playerid));
-    })
-
-    socket.on("update", (player) => {
-      setMe((oldMe: any) => {
-        if (oldMe.id === player.id) {
-          return { ...oldMe, ...player }
-        }
-        setPlayers((oldPlayers: any) => {
-          let players = oldPlayers;
-          if (players.find((p: any) => p.id === player.id) !== undefined) {
-            players = players.map((p: any) => {
-              if (p.id === player.id) {
-                return { ...p, ...player };
-              }
-              return p;
-            });
-          } else {
-            players.push({ ...player, ref: createRef() });
-          }
-          return players;
-        });
-        return oldMe;
-      });
-    })
-  }, [Me, Players]);
-
   useEffect(() => {
+    // 初始化socket事件监听
+    const initSocketListener = () => {
+      socket.on("connected", ({ player, players }) => {
+        setMe({ ...Me, ...player, ref: createRef() });
+        setPlayers(players.map((p: any) => ({ ...p, ref: createRef() })));
+        socket.emit("join", player);
+      })
+
+      socket.on("joined", (player) => {
+        if (player.id !== Me.id) {
+          setPlayers([...Players, { ...player, ref: createRef() }]);
+        };
+      });
+
+      socket.on("leaved", (playerid) => {
+        setPlayers(Players.filter((player: any) => player.id !== playerid));
+      })
+
+      socket.on("update", (player) => {
+        if (Me.id === player.id) {
+          setMe({ ...Me, ...player });
+        } else {
+          setPlayers(Players.map((p: any) => {
+            if (p.id === player.id) {
+              return { ...p, ...player };
+            }
+            return p;
+          }));
+        }
+      })
+    };
+
     initSocketListener();
-  }, [initSocketListener]);
+
+    return () => {
+      socket.off();
+    }
+
+  }, [Me, Players]);
 
   const keychange = (keys: any) => {
     if (keys.includes("w") && !keys.includes("s") && !keys.includes("a") && !keys.includes("d")) {
@@ -96,6 +102,7 @@ const App = () => {
   }
 
   const onkeydown = (key: any) => {
+    console.log(camera.current.rotationY);
     if (!keys.current.includes(key)) {
       keys.current.push(key);
       keychange(keys.current);
@@ -130,12 +137,12 @@ const App = () => {
   useLoop(() => {
     if (Me.ref) {
       if (Me.motion === "run") {
-        Me.ref.current.moveForward(-2);
+        Me.ref.current.moveForward(-6);
       }
     }
     Players.forEach((player: any) => {
       if (player.motion === "run" && player.ref.current) {
-        player.ref.current.moveForward(-2);
+        player.ref.current.moveForward(-6);
       }
     })
   })
@@ -161,7 +168,7 @@ const App = () => {
     <>
       <World>
         <Skybox texture="sky2.jpeg" />
-        <ThirdPersonCamera active mouseControl lockTargetRotation={false}>
+        <ThirdPersonCamera ref={camera} active mouseControl lockTargetRotation={false}>
           <Model
             ref={Me.ref}
             src="hql.fbx"

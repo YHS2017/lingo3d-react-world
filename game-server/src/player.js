@@ -1,9 +1,9 @@
 function Player (roomId, playerId) {
   this.roomId = roomId;
   this.id = playerId;
-  this.x = 5 * Math.random() + 295.02;
+  this.x = 100 * Math.random() + 300;
   this.y = -2328;
-  this.z = 5 * Math.random() + 33.78;
+  this.z = 100 * Math.random() + 30;
   this.rx = 0;
   this.ry = 0;
   this.rz = 0;
