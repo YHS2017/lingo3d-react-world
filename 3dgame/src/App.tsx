@@ -12,11 +12,9 @@ const App = () => {
     "sky2.jpeg"
   ], "65.7mb")
 
-  // 相机
-  const camera = useRef<any>();
-
   // 其他玩家
   const [Players, setPlayers] = useState<any[]>([]);
+
 
   // 当前玩家
   const [Me, setMe] = useState<any>({});
@@ -102,7 +100,6 @@ const App = () => {
   }
 
   const onkeydown = (key: any) => {
-    console.log(camera.current.rotationY);
     if (!keys.current.includes(key)) {
       keys.current.push(key);
       keychange(keys.current);
@@ -137,7 +134,8 @@ const App = () => {
   useLoop(() => {
     if (Me.ref) {
       if (Me.motion === "run") {
-        Me.ref.current.moveForward(-6);
+        Me.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 6);
+        Me.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 6);
       }
     }
     Players.forEach((player: any) => {
@@ -168,7 +166,7 @@ const App = () => {
     <>
       <World>
         <Skybox texture="sky2.jpeg" />
-        <ThirdPersonCamera ref={camera} active mouseControl lockTargetRotation={false}>
+        <ThirdPersonCamera active mouseControl lockTargetRotation={Me.motion === 'run'}>
           <Model
             ref={Me.ref}
             src="hql.fbx"
@@ -178,9 +176,9 @@ const App = () => {
             x={Me.x}
             y={Me.y}
             z={Me.z}
-            rotationX={Me.rx}
-            rotationY={Me.ry}
-            rotationZ={Me.rz}
+            innerRotationX={Me.rx}
+            innerRotationY={Me.ry}
+            innerRotationZ={Me.rz}
           />
         </ThirdPersonCamera>
         {Players.map((player: any) => <Model
@@ -193,9 +191,9 @@ const App = () => {
           x={player.x}
           y={player.y}
           z={player.z}
-          rotationX={player.rx}
-          rotationY={player.ry}
-          rotationZ={player.rz}
+          innerRotationX={player.rx}
+          innerRotationY={player.ry}
+          innerRotationZ={player.rz}
         />)}
         <Model src="city.fbx" physics="map" scale={50} />
         {CanEditor ?
