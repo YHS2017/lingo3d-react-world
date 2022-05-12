@@ -3,14 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "serve": "node ./server/app.js",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "express": "^4.18.1",
     "lingo3d-react": "^1.2.98",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "socket.io": "^4.5.0",
     "socket.io-client": "^4.5.0"
   },
   "devDependencies": {
