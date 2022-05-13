@@ -1,0 +1,17 @@
+.menu {
+  position: absolute;
+  left: 100px;
+  top: 50px;
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  background-color: #00000050;
+  color: #ffffff;
+  text-align: center;
+  line-height: 30px;
+  padding: 10px;
+}
+
+.menu b.active {
+  color: #3e79f8;
+}

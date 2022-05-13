@@ -1,20 +1,20 @@
-import { World, Model, ThirdPersonCamera, Skybox, Joystick, Keyboard, usePreload, Editor, Toolbar, SceneGraph, useLoop } from "lingo3d-react"
+import { World, Model, ThirdPersonCamera, Skybox, Joystick, Keyboard, usePreload, Find, Editor, Toolbar, SceneGraph, Library, useLoop, HTML } from "lingo3d-react"
 import { createRef, useEffect, useState, useRef } from "react"
 import socket from "./utils/socket"
+import "./App.css"
 
 const App = () => {
   const progress = usePreload([
     "hql.fbx",
     "Standing.fbx",
     "Running.fbx",
-    "Jumping.fbx",
+    "club.glb",
     "city.fbx",
     "sky2.jpeg"
-  ], "65.7mb")
+  ], "76mb")
 
   // 其他玩家
   const [Players, setPlayers] = useState<any[]>([]);
-
 
   // 当前玩家
   const [Me, setMe] = useState<any>({});
@@ -24,6 +24,9 @@ const App = () => {
 
   // 摇杆
   const joystick = useRef<any>(false);
+
+  // 交互ID
+  const [Interaction, setInteraction] = useState<any>(null);
 
   // 编辑开关
   const [CanEditor, setCanEditor] = useState(false);
@@ -67,36 +70,38 @@ const App = () => {
       socket.off();
     }
 
-  }, [Me, Players]);
+  }, [Me, Players, Interaction]);
 
   const keychange = (keys: any) => {
+    let player: any = { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: Me.ref.current.ry };
     if (keys.includes("w") && !keys.includes("s") && !keys.includes("a") && !keys.includes("d")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: 0, motion: "run" });
+      player = { ...player, ry: 0, motion: "run" };
     }
     if (keys.includes("s") && !keys.includes("w") && !keys.includes("a") && !keys.includes("d")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: 180, motion: "run" });
+      player = { ...player, ry: 180, motion: "run" };
     }
     if (keys.includes("a") && !keys.includes("w") && !keys.includes("s") && !keys.includes("d")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: 90, motion: "run" });
+      player = { ...player, ry: 90, motion: "run" };
     }
     if (keys.includes("d") && !keys.includes("w") && !keys.includes("s") && !keys.includes("a")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: -90, motion: "run" });
+      player = { ...player, ry: -90, motion: "run" };
     }
     if (keys.length >= 2 && keys.includes("w") && keys.includes("a")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: 45, motion: "run" });
+      player = { ...player, ry: 45, motion: "run" };
     }
     if (keys.length >= 2 && keys.includes("w") && keys.includes("d")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: -45, motion: "run" });
+      player = { ...player, ry: -45, motion: "run" };
     }
     if (keys.length >= 2 && keys.includes("s") && keys.includes("a")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: 135, motion: "run" });
+      player = { ...player, ry: 135, motion: "run" };
     }
     if (keys.length >= 2 && keys.includes("s") && keys.includes("d")) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: -135, motion: "run" });
+      player = { ...player, ry: -135, motion: "run" };
     }
     if (!(keys.includes("w") || keys.includes("s") || keys.includes("a") || keys.includes("d"))) {
-      socket.emit("update", { id: Me.id, roomId: Me.roomId, motion: "idle" });
+      player = { ...player, motion: "idle" };
     }
+    socket.emit("update", player);
   }
 
   const onkeydown = (key: any) => {
@@ -107,10 +112,21 @@ const App = () => {
     if (key === "Insert") {
       setCanEditor(!CanEditor);
     }
+    if (key === "ArrowUp" || key === "ArrowDown") {
+      console.log(Interaction);
+      if (Interaction !== null) {
+        if (Interaction.index === 0) {
+          setInteraction({ ...Interaction, index: 1 });
+        } else {
+          setInteraction({ ...Interaction, index: 0 });
+        }
+      }
+    }
   }
 
   const onkeyup = (key: any) => {
     keys.current = keys.current.filter((k: any) => k !== key);
+    if (key === 'Space') return;
     keychange(keys.current);
   }
 
@@ -134,16 +150,35 @@ const App = () => {
   useLoop(() => {
     if (Me.ref) {
       if (Me.motion === "run") {
-        Me.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 6);
-        Me.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 6);
+        Me.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 10);
+        Me.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 10);
       }
     }
+
+    let can = false;
+    let temp = Interaction !== null ? { ...Interaction } : null;
     Players.forEach((player: any) => {
       if (player.motion === "run" && player.ref.current) {
-        player.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 6);
-        player.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 6);
+        player.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 10);
+        player.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 10);
+      }
+
+      const s = (Me.x - player.x) * (Me.x - player.x) + (Me.z - player.z) * (Me.z - player.z);
+      if (s <= 22500) {
+        can = true;
+        if (temp === null) {
+          temp = { id: player.id, s, index: 0 };
+        } else {
+          if (temp.id !== player.id && temp.s > s) {
+            temp = { id: player.id, s, index: 0 };
+          }
+        }
       }
     })
+    if (!can) {
+      temp = null;
+    }
+    setInteraction(temp);
   })
 
   if (progress < 100)
@@ -165,14 +200,13 @@ const App = () => {
 
   return (
     <>
-      <World>
-        <Skybox texture="sky2.jpeg" />
+      <World ambientOcclusion bloom bloomStrength={0.1} bloomRadius={1} bloomThreshold={0.7}>
         <ThirdPersonCamera active mouseControl lockTargetRotation={Me.motion === 'run'}>
           <Model
             ref={Me.ref}
             src="hql.fbx"
             physics="character"
-            animations={{ idle: "Standing.fbx", run: "Running.fbx", jump: "Jumping.fbx" }}
+            animations={{ idle: "Standing.fbx", run: "Running.fbx" }}
             animation={Me.motion}
             x={Me.x}
             y={Me.y}
@@ -187,7 +221,7 @@ const App = () => {
           key={player.id}
           src="hql.fbx"
           physics="character"
-          animations={{ idle: "Standing.fbx", run: "Running.fbx", jump: "Jumping.fbx" }}
+          animations={{ idle: "Standing.fbx", run: "Running.fbx" }}
           animation={player.motion}
           x={player.x}
           y={player.y}
@@ -195,13 +229,23 @@ const App = () => {
           innerRotationX={player.rx}
           innerRotationY={player.ry}
           innerRotationZ={player.rz}
-        />)}
-        <Model src="city.fbx" physics="map" scale={50} />
+        >
+          <Find name="Wolf3D_Outfit_Top" >
+            {Interaction && <HTML>
+              <div className="menu">
+                <b className={Interaction.index === 0 ? 'active' : ''}>打招呼</b>
+                <b className={Interaction.index === 1 ? 'active' : ''}>邀请跳舞</b>
+              </div>
+            </HTML>}
+          </Find>
+        </Model>)}
+        <Model src="club.glb" physics="map" scale={10} />
         {CanEditor ?
           <>
             <Toolbar />
             <SceneGraph />
             <Editor />
+            <Library />
           </> : null
         }
       </World>
