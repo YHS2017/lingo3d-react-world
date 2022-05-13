@@ -25,8 +25,8 @@ const App = () => {
   // 摇杆
   const joystick = useRef<any>(false);
 
-  // 交互ID
-  const [Interaction, setInteraction] = useState<any>(null);
+  // 交互对象
+  const [Interact, setInteract] = useState<any>(null);
 
   // 编辑开关
   const [CanEditor, setCanEditor] = useState(false);
@@ -70,7 +70,7 @@ const App = () => {
       socket.off();
     }
 
-  }, [Me, Players, Interaction]);
+  }, [Me, Players, Interact]);
 
   const keychange = (keys: any) => {
     let player: any = { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: Me.ref.current.ry };
@@ -113,12 +113,11 @@ const App = () => {
       setCanEditor(!CanEditor);
     }
     if (key === "ArrowUp" || key === "ArrowDown") {
-      console.log(Interaction);
-      if (Interaction !== null) {
-        if (Interaction.index === 0) {
-          setInteraction({ ...Interaction, index: 1 });
+      if (Interact !== null) {
+        if (Interact.index === 0) {
+          setInteract({ ...Interact, index: 1 });
         } else {
-          setInteraction({ ...Interaction, index: 0 });
+          setInteract({ ...Interact, index: 0 });
         }
       }
     }
@@ -150,36 +149,56 @@ const App = () => {
   useLoop(() => {
     if (Me.ref) {
       if (Me.motion === "run") {
-        Me.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 10);
-        Me.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 10);
+        Me.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 6);
+        Me.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 6);
       }
     }
 
-    let can = false;
-    let temp = Interaction !== null ? { ...Interaction } : null;
+    let temp: any = null;
     Players.forEach((player: any) => {
       if (player.motion === "run" && player.ref.current) {
-        player.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 10);
-        player.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 10);
+        player.ref.current.moveForward(-Math.cos(Math.PI / 180 * player.ry) * 6);
+        player.ref.current.moveRight(Math.sin(Math.PI / 180 * player.ry) * 6);
       }
 
       const s = (Me.x - player.x) * (Me.x - player.x) + (Me.z - player.z) * (Me.z - player.z);
-      if (s <= 22500) {
-        can = true;
+      if (s < 22500) {
         if (temp === null) {
           temp = { id: player.id, s, index: 0 };
         } else {
-          if (temp.id !== player.id && temp.s > s) {
+          if (temp.s > s) {
             temp = { id: player.id, s, index: 0 };
           }
         }
       }
     })
-    if (!can) {
-      temp = null;
+    if (temp === null) {
+      setInteract(null);
+    } else {
+      if (Interact !== null) {
+        if (temp.id !== Interact.id) {
+          setInteract({ ...temp });
+        }
+      } else {
+        setInteract({ ...temp });
+      }
     }
-    setInteraction(temp);
   })
+
+  const renderMenu = () => {
+    console.log(Interact);
+    if (Interact !== null) {
+      return (
+        <HTML key={`${Interact.id}-${Interact.index}`}>
+          <div className="menu">
+            <b className={Interact.index === 0 ? 'active' : ''}>打招呼</b>
+            <b className={Interact.index === 1 ? 'active' : ''}>邀请跳舞</b>
+          </div>
+        </HTML>
+      )
+    }
+    return null;
+  }
 
   if (progress < 100)
     return (
@@ -214,7 +233,16 @@ const App = () => {
             innerRotationX={Me.rx}
             innerRotationY={Me.ry}
             innerRotationZ={Me.rz}
-          />
+          >
+            <Find name="Wolf3D_Head">
+              <HTML>
+                <div className="name">{Me.id}</div>
+              </HTML>
+            </Find>
+            <Find name="Wolf3D_Outfit_Top" >
+              {renderMenu()}
+            </Find>
+          </Model>
         </ThirdPersonCamera>
         {Players.map((player: any) => <Model
           ref={player.ref}
@@ -230,13 +258,10 @@ const App = () => {
           innerRotationY={player.ry}
           innerRotationZ={player.rz}
         >
-          <Find name="Wolf3D_Outfit_Top" >
-            {Interaction && <HTML>
-              <div className="menu">
-                <b className={Interaction.index === 0 ? 'active' : ''}>打招呼</b>
-                <b className={Interaction.index === 1 ? 'active' : ''}>邀请跳舞</b>
-              </div>
-            </HTML>}
+          <Find name="Wolf3D_Head">
+            <HTML>
+              <div className="name">{player.id}</div>
+            </HTML>
           </Find>
         </Model>)}
         <Model src="club.glb" physics="map" scale={10} />

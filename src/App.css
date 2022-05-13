@@ -1,7 +1,7 @@
 .menu {
   position: absolute;
-  left: 100px;
-  top: 50px;
+  left: 50px;
+  top: 20px;
   width: 120px;
   display: flex;
   flex-direction: column;
@@ -14,4 +14,16 @@
 
 .menu b.active {
   color: #3e79f8;
+}
+
+.name {
+  position: absolute;
+  top: -50px;
+  left: -100px;
+  width: 200px;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #ffffff;
 }
