@@ -162,7 +162,7 @@ const App = () => {
       }
 
       const s = (Me.x - player.x) * (Me.x - player.x) + (Me.z - player.z) * (Me.z - player.z);
-      if (s < 22500) {
+      if (s < 10000) {
         if (temp === null) {
           temp = { id: player.id, s, index: 0 };
         } else {
