@@ -1,4 +1,4 @@
-import { World, Model, ThirdPersonCamera, Skybox, Joystick, Keyboard, usePreload, Find, Editor, Toolbar, SceneGraph, Library, useLoop, HTML } from "lingo3d-react"
+import { World, Model, ThirdPersonCamera, Joystick, Keyboard, usePreload, Find, Editor, Toolbar, SceneGraph, Library, useLoop, HTML } from "lingo3d-react"
 import { createRef, useEffect, useState, useRef } from "react"
 import socket from "./utils/socket"
 import "./App.css"
