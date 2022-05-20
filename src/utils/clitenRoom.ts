@@ -1,6 +1,6 @@
-import Colyseus from "colyseus.js";
+import * as Colyseus from "colyseus.js"
 
-const client = new Colyseus.Client("ws://localhost:5000");
-const room = await client.joinOrCreate("wrold");
+const client = new Colyseus.Client("ws://localhost:5000")
+const room = await client.joinOrCreate("world")
 
-export default room;
+export default room

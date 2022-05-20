@@ -2,25 +2,20 @@
   "name": "3dgame",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "serve-ts": "ts-node ./server/app.ts",
     "serve": "node ./server/app.js",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/express": "^4.17.13",
+    "@colyseus/ws-transport": "^0.14.21",
     "colyseus": "^0.14.23",
     "colyseus.js": "^0.14.13",
     "express": "^4.18.1",
     "lingo3d-react": "^1.2.98",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "socket.io": "^4.5.0",
-    "socket.io-client": "^4.5.0",
-    "ts-node": "^10.7.0"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

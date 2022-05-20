@@ -1,6 +1,6 @@
 import { World, Model, ThirdPersonCamera, Joystick, Keyboard, usePreload, Find, Editor, Toolbar, SceneGraph, Library, useLoop, HTML } from "lingo3d-react"
 import { createRef, useEffect, useState, useRef } from "react"
-import socket from "./utils/socket"
+import room from "./utils/clitenRoom";
 import "./App.css"
 
 const App = () => {
@@ -32,25 +32,28 @@ const App = () => {
   const [CanEditor, setCanEditor] = useState(false)
 
   useEffect(() => {
-    // 初始化socket事件监听
-    const initSocketListener = () => {
-      socket.on("connected", ({ player, players }) => {
-        setMe({ ...Me, ...player, ref: createRef() })
-        setPlayers(players.map((p: any) => ({ ...p, ref: createRef() })))
-        socket.emit("join", player)
+    // 初始化room事件监听
+    const initRoomListener = () => {
+      room.onStateChange((state: any) => {
+        console.log(state.players);
       })
 
-      socket.on("joined", (player) => {
+      room.onMessage("joinin", ({ player, otherPlayers }: any) => {
+        setMe({ ...Me, ...player, ref: createRef() })
+        setPlayers(otherPlayers.map((p: any) => ({ ...p, ref: createRef() })))
+      })
+
+      room.onMessage("joined", (player: any) => {
         if (player.id !== Me.id) {
           setPlayers([...Players, { ...player, ref: createRef() }])
         }
       })
 
-      socket.on("leaved", (playerid) => {
+      room.onMessage("leaved", (playerid: string) => {
         setPlayers(Players.filter((player: any) => player.id !== playerid))
       })
 
-      socket.on("update", (player) => {
+      room.onMessage("update", (player: any) => {
         if (Me.id === player.id) {
           setMe({ ...Me, ...player })
         } else {
@@ -64,10 +67,10 @@ const App = () => {
       })
     }
 
-    initSocketListener()
+    initRoomListener()
 
     return () => {
-      socket.off()
+
     }
 
   }, [Me, Players, Interact])
@@ -101,7 +104,8 @@ const App = () => {
     if (!(keys.includes("w") || keys.includes("s") || keys.includes("a") || keys.includes("d"))) {
       player = { ...player, motion: "idle" }
     }
-    socket.emit("update", player)
+    // console.log(player)
+    room.send("update", player)
   }
 
   const onkeydown = (key: any) => {
@@ -135,13 +139,13 @@ const App = () => {
 
   const onmoveend = () => {
     joystick.current = false
-    socket.emit("update", { id: Me.id, roomId: Me.roomId, motion: "idle" })
+    room.send("update", { id: Me.id, roomId: Me.roomId, motion: "idle" })
   }
 
   const onmove = (e: any) => {
     if (joystick.current) {
       if (joystick.current && (e.x > 8 || e.x < -8 || e.y > 8 || e.y < -8)) {
-        socket.emit("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: e.angle * (-1) - 90, motion: "run" })
+        room.send("update", { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: e.angle * (-1) - 90, motion: "run" })
       }
     }
   }
