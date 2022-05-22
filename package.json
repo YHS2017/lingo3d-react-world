@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@colyseus/ws-transport": "^0.14.21",
+    "antd": "^4.20.6",
     "colyseus": "^0.14.23",
     "colyseus.js": "^0.14.13",
     "express": "^4.18.1",

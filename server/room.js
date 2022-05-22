@@ -5,6 +5,8 @@ class Player extends Schema {
 }
 
 defineTypes(Player, {
+  id: "string",
+  uname: "string",
   x: "number",
   y: "number",
   z: "number",
@@ -20,14 +22,16 @@ class State extends Schema {
     this.players = new MapSchema()
   }
 
-  createPlayer = (sessionId) => {
+  createPlayer = (sessionId, options) => {
     this.players.set(sessionId, new Player().assign({
+      id: sessionId,
+      uname: options.uname,
       x: 100 * Math.random() + 250,
-      y: = -868.66,
-      z:= 100 * Math.random() + 120,
-      rx: = 0,
-      ry:= 0,
-      rz:= 0,
+      y: -868.66,
+      z: 100 * Math.random() + 120,
+      rx: 0,
+      ry: 0,
+      rz: 0,
       motion: "idle"
     }))
   }
@@ -78,18 +82,13 @@ class GameRoom extends Room {
     this.setState(new State())
 
     this.onMessage("update", (client, data) => {
-      console.log(`GameRoom update player ${client.sessionId}:${data}`)
+      console.log(`GameRoom update player ${client.sessionId}:${JSON.stringify(data)}`)
       this.state.updatePlayer(client.sessionId, data)
     })
   }
 
-  onJoin (client) {
-    this.state.createPlayer(client.sessionId)
-    const player = this.state.players.getters[client.sessionId]
-    const otherPlayers = this.state.players.values()
-    console.log(player, otherPlayers)
-    client.send("joinin", { player, otherPlayers })
-    this.broadcast("joined", player, { except: client })
+  onJoin (client, options) {
+    this.state.createPlayer(client.sessionId, options)
   }
 
   onLeave (client) {
