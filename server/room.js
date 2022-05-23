@@ -28,7 +28,7 @@ class State extends Schema {
       uname: options.uname,
       x: 100 * Math.random() + 400,
       y: -868.66,
-      z: 100 * Math.random() + 500,
+      z: 100 * Math.random() + 200,
       rx: 0,
       ry: 0,
       rz: 0,

@@ -10,9 +10,8 @@ const Room = ({ room }: { room: Colyseus.Room }) => {
     "Standing.fbx",
     "Running.fbx",
     "club.glb",
-    "city.fbx",
     "sky2.jpeg"
-  ], "76mb")
+  ], "17.7mb")
 
   // 其他玩家
   const [Players, setPlayers] = useState<any[]>([])

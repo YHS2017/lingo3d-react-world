@@ -1753,9 +1753,9 @@ rc-dropdown@~3.5.0:
     rc-util "^5.17.0"
 
 rc-field-form@~1.26.1:
-  version "1.26.4"
-  resolved "https://registry.npmmirror.com/rc-field-form/-/rc-field-form-1.26.4.tgz#78553e0f317f0ed7ceea70b1b89d43865dddeb83"
-  integrity sha512-eCCyiNNaN0NTYTyoziQHD4Fj6mUED21lWkw66vg+kttg0eDw+miD6LsaJbTD5c2bzKjUJTf10AitPG+f5zT4+A==
+  version "1.26.5"
+  resolved "https://registry.npmmirror.com/rc-field-form/-/rc-field-form-1.26.5.tgz#603eddaf90a3329efc6a61f9a9c5e36d7097e605"
+  integrity sha512-JeZM7tF8V1A4l8eT1GUoanYTNXtGxIw+Qvwkc8k+9PnogKPXZxw2PGMKyo0RBUknR90omT2BhA9AaDEmVXDZLA==
   dependencies:
     "@babel/runtime" "^7.8.4"
     async-validator "^4.1.0"
