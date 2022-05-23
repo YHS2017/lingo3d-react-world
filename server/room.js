@@ -26,9 +26,9 @@ class State extends Schema {
     this.players.set(sessionId, new Player().assign({
       id: sessionId,
       uname: options.uname,
-      x: 100 * Math.random() + 250,
+      x: 100 * Math.random() + 400,
       y: -868.66,
-      z: 100 * Math.random() + 120,
+      z: 100 * Math.random() + 500,
       rx: 0,
       ry: 0,
       rz: 0,
@@ -88,15 +88,17 @@ class GameRoom extends Room {
   }
 
   onJoin (client, options) {
+    console.log(`GameRoom client joined: ${client.sessionId}`)
     this.state.createPlayer(client.sessionId, options)
   }
 
   onLeave (client) {
+    console.log(`GameRoom client left: ${client.sessionId}`)
     this.state.removePlayer(client.sessionId)
   }
 
   onDispose () {
-    console.log("Dispose GameRoom")
+    console.log("GameRoom destroyed!")
   }
 
 }

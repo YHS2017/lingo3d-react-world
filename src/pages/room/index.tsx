@@ -33,11 +33,24 @@ const Room = ({ room }: { room: Colyseus.Room }) => {
   const [CanEditor, setCanEditor] = useState(false)
 
   useEffect(() => {
+    room.onStateChange.once((state) => {
+      let me = null
+      let players: any[] = []
+      state.players.forEach((player: any) => {
+        if (player.id === room.sessionId) {
+          me = { ...player, ref: createRef() }
+        } else {
+          players.push({ ...player, ref: createRef() })
+        }
+      })
+      console.log(me, players)
+      setMe(me)
+      setPlayers(players)
+    })
+
     room.state.players.onAdd = (player: any, key: string) => {
       console.log(player);
-      if (room.sessionId === key) {
-        setMe({ ...Me, ...player, ref: createRef() })
-      } else {
+      if (room.sessionId !== key) {
         setPlayers([...Players, { ...player, ref: createRef() }])
       }
     }
