@@ -1,4 +1,4 @@
-import { World, Model, ThirdPersonCamera, Joystick, Keyboard, usePreload, Find, Editor, Toolbar, SceneGraph, Library, useLoop, HTML } from "lingo3d-react"
+import { World, Model, ThirdPersonCamera, Joystick, Keyboard, usePreload, Find, Editor, Toolbar, SceneGraph, Library, useLoop, HTML, Cube } from "lingo3d-react"
 import { createRef, useEffect, useState, useRef } from "react"
 import type * as Colyseus from "colyseus.js"
 import "./index.css"
@@ -72,7 +72,11 @@ const Room = ({ room }: { room: Colyseus.Room }) => {
         }))
       }
     }
-  }, [Me, Players, Interact])
+
+    return () => {
+      room.removeAllListeners()
+    }
+  }, [])
 
   const keychange = (keys: any) => {
     let player: any = { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: Me.ref.current.ry }
@@ -188,7 +192,6 @@ const Room = ({ room }: { room: Colyseus.Room }) => {
   })
 
   const renderMenu = () => {
-    console.log(Interact)
     if (Interact !== null) {
       return (
         <HTML key={`${Interact.id}-${Interact.index}`}>
@@ -221,8 +224,8 @@ const Room = ({ room }: { room: Colyseus.Room }) => {
 
   return (
     <>
-      <World ambientOcclusion bloom bloomStrength={0.1} bloomRadius={1} bloomThreshold={0.7}>
-        <ThirdPersonCamera active mouseControl lockTargetRotation={Me.motion === 'run'}>
+      <World ambientOcclusion>
+        <ThirdPersonCamera active mouseControl lockTargetRotation={Me.motion === "run"}>
           <Model
             ref={Me.ref}
             src="hql.fbx"
@@ -266,7 +269,7 @@ const Room = ({ room }: { room: Colyseus.Room }) => {
             </HTML>
           </Find>
         </Model>)}
-        <Model src="club.glb" physics="map" scale={20} />
+        <Cube physics="map" width={999} height={50} depth={999} x={0} z={0} y={-1000} />
         {CanEditor ?
           <>
             <Toolbar />

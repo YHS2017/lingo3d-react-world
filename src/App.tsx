@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import Login from "./pages/login"
 import Home from "./pages/home"
-import Room from "./pages/room"
+import Room from "./pages/room/index"
 import client from "./utils/cliten"
 
 const App = () => {

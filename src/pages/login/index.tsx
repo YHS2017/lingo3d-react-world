@@ -15,7 +15,7 @@ const Login = ({ init }: { init: Function }) => {
   return (
     <div className="login">
       <div className="login-box">
-        <h2>请留下的大名</h2>
+        <h2>请留下你的大名</h2>
         <Input style={{ margin: '10px 0 20px 0' }} value={username} onChange={(val) => setUsername(val.target.value)} />
         <Button type="primary" onClick={tohone}>进入大厅</Button>
       </div>
