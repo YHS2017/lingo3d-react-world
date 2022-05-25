@@ -1,4 +1,4 @@
-const { Room, Client } = require("colyseus")
+const { Room, Client, updateLobby } = require("colyseus")
 const { Schema, MapSchema, defineTypes } = require("@colyseus/schema")
 
 class Player extends Schema {
@@ -23,13 +23,13 @@ class State extends Schema {
   }
 
   createPlayer = (sessionId, options) => {
-    console.log(`GameRoom client joined: ${client.sessionId}`)
+    console.log(`GameRoom client joined: ${sessionId}`)
     this.players.set(sessionId, new Player().assign({
       id: sessionId,
       uname: options.uname,
-      x: 100 * Math.random() + 0,
-      y: -800,
-      z: 100 * Math.random() + 0,
+      x: 100 * Math.random() + 400,
+      y: -867.18,
+      z: 100 * Math.random() + 200,
       rx: 0,
       ry: 0,
       rz: 0,
@@ -38,12 +38,12 @@ class State extends Schema {
   }
 
   removePlayer = (sessionId) => {
-    console.log(`GameRoom client left: ${client.sessionId}`)
+    console.log(`GameRoom client left: ${sessionId}`)
     this.players.delete(sessionId)
   }
 
   updatePlayer = (sessionId, data) => {
-    console.log(`GameRoom update player ${client.sessionId}:${JSON.stringify(data)}`)
+    console.log(`GameRoom update player ${sessionId}:${JSON.stringify(data)}`)
     const player = this.players.get(sessionId)
     if (data.x) {
       player.x = data.x
@@ -66,7 +66,6 @@ class State extends Schema {
     if (data.motion) {
       player.motion = data.motion
     }
-    this.players.set(sessionId, player)
   }
 }
 
@@ -92,6 +91,7 @@ class GameRoom extends Room {
 
   onJoin (client, options) {
     this.state.createPlayer(client.sessionId, options)
+    updateLobby(this)
   }
 
   onLeave (client) {

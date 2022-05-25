@@ -1,5 +1,5 @@
 const { GameRoom } = require("./room")
-const { Server } = require("colyseus")
+const { Server, LobbyRoom } = require("colyseus")
 const { createServer } = require("http")
 const express = require("express")
 const { WebSocketTransport } = require("@colyseus/ws-transport")
@@ -14,7 +14,8 @@ const gameServer = new Server({
   })
 });
 
-gameServer.define("world", GameRoom);
+gameServer.define("lobby", LobbyRoom);
+gameServer.define("gameroom", GameRoom).enableRealtimeListing();
 
 gameServer.listen(port, undefined, undefined, () => {
   console.log(`Listening on ws://localhost:${port}`)
