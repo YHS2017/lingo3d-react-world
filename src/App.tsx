@@ -1,4 +1,4 @@
-import { createRef, useRef, useState } from "react"
+import { createRef, useEffect, useRef, useState } from "react"
 import type * as Colyseus from "colyseus.js"
 import client from "./utils/cliten"
 import { Button, Card, Input, message, Space, Table } from "antd"
@@ -24,7 +24,7 @@ const App = () => {
   const [Players, setPlayers] = useState<any[]>([])
 
   // 当前玩家
-  const [Me, setMe] = useState<any>({})
+  const [Me, setMe] = useState<any>(null)
 
   // 按键
   const keys = useRef<any[]>([])
@@ -38,84 +38,95 @@ const App = () => {
   // 编辑开关
   const [CanEditor, setCanEditor] = useState(false)
 
+  const initLobbyLisener = () => {
+    lobbyroom.current?.onMessage('rooms', (rooms) => {
+      setRoomList(rooms)
+    })
+
+    lobbyroom.current?.onMessage("+", ([roomId, room]) => {
+      const roomIndex = RoomList.findIndex((room: any) => room.roomId === roomId);
+      if (roomIndex !== -1) {
+        setRoomList(RoomList.map((room: any, index: number) => {
+          if (index === roomIndex) {
+            return room = roomId
+          }
+          return room
+        }))
+      } else {
+        setRoomList([...RoomList, room])
+      }
+    });
+
+    lobbyroom.current?.onMessage("-", (roomId) => {
+      setRoomList(RoomList.filter((room: any) => room.roomId !== roomId));
+    });
+  }
+
   const toHome = async () => {
     if (UserName) {
       lobbyroom.current = await client.joinOrCreate("lobby")
+      initLobbyLisener()
+      setPage('home')
+    }
+  }
 
-      lobbyroom.current.onMessage('rooms', (rooms) => {
-        console.log(rooms)
-        setRoomList(rooms)
+  const initGameRoomLisener = () => {
+    if (gameroom.current) {
+      gameroom.current.onStateChange.once((state) => {
+        let me = null
+        let players: any[] = []
+        state.players.forEach((player: any) => {
+          if (player.id === gameroom.current?.sessionId) {
+            me = { ...Me, ...player, ref: createRef() }
+          } else {
+            players.push({ ...player, ref: createRef() })
+          }
+        })
+        console.log(me, players)
+        setMe(me)
+        setPlayers(players)
       })
 
-      lobbyroom.current.onMessage("+", ([roomId, room]) => {
-        const roomIndex = RoomList.findIndex((room: any) => room.roomId === roomId);
-        if (roomIndex !== -1) {
-          setRoomList(RoomList.map((room: any, index: number) => {
-            if (index === roomIndex) {
-              return room = roomId
-            }
-            return room
-          }))
-        } else {
-          setRoomList([...RoomList, room])
+      gameroom.current.state.players.onAdd = (player: any, key: string) => {
+        console.log(player);
+        player.onChange = (changes: any) => {
+          console.log(changes);
+          let temp: any = {};
+          changes.forEach((change: any) => {
+            temp[change.key] = change.value;
+          })
+          if (Me && Me.id === key) {
+            setMe({ ...Me, ...temp })
+          } else {
+            setPlayers(Players.map((p: any) => {
+              if (p.id === player.id) {
+                return { ...p, ...temp }
+              }
+              return p
+            }))
+          }
         }
-      });
+        if (Me && Me.id !== key) {
+          setPlayers([...Players, { ...player, ref: createRef() }])
+        }
+      }
 
-      lobbyroom.current.onMessage("-", (roomId) => {
-        setRoomList(RoomList.filter((room: any) => room.roomId !== roomId));
-      });
-
-      setPage('home')
+      gameroom.current.state.players.onRemove = (player: any, key: string) => {
+        message.info(`玩家${player.name}`);
+        setPlayers(Players.filter((p: any) => p.id !== key))
+      }
     }
   }
 
   const joinRoom = async (roomId: string) => {
     gameroom.current = await client.joinById(roomId, { uname: UserName })
+    initGameRoomLisener()
     setPage("room")
   }
 
   const createRoom = async () => {
     gameroom.current = await client.create('gameroom', { uname: UserName })
-    gameroom.current.onStateChange.once((state) => {
-      let me = null
-      let players: any[] = []
-      state.players.forEach((player: any) => {
-        if (player.id === gameroom.current?.sessionId) {
-          me = { ...Me, ...player, ref: createRef() }
-        } else {
-          players.push({ ...player, ref: createRef() })
-        }
-      })
-      console.log(me, players)
-      setMe(me)
-      setPlayers(players)
-    })
-
-    gameroom.current.state.players.onAdd = (player: any, key: string) => {
-      console.log(player);
-      if (gameroom.current?.sessionId !== key) {
-        setPlayers([...Players, { ...player, ref: createRef() }])
-      }
-    }
-
-    gameroom.current.state.players.onRemove = (player: any, key: string) => {
-      message.info(`玩家${player.name}`);
-      setPlayers(Players.filter((p: any) => p.id !== key))
-    }
-
-    gameroom.current.state.players.onChange = (player: any, key: string) => {
-      console.log(player);
-      if (Me.id === key) {
-        setMe({ ...Me, ...player })
-      } else {
-        setPlayers(Players.map((p: any) => {
-          if (p.id === player.id) {
-            return { ...p, ...player }
-          }
-          return p
-        }))
-      }
-    }
+    initGameRoomLisener()
     setPage("room")
   }
 
@@ -194,7 +205,7 @@ const App = () => {
   }
 
   useLoop(() => {
-    if (Me.ref) {
+    if (Me && Me.ref) {
       if (Me.motion === "run") {
         Me.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 6)
         Me.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 6)
@@ -313,7 +324,7 @@ const App = () => {
   return (
     <>
       <World ambientOcclusion>
-        <ThirdPersonCamera active mouseControl lockTargetRotation={Me.motion === "run"}>
+        {Me && <ThirdPersonCamera active mouseControl lockTargetRotation={Me.motion === "run"}>
           <Model
             ref={Me.ref}
             src="hql.fbx"
@@ -337,7 +348,7 @@ const App = () => {
               {renderMenu()}
             </Find>
           </Model>
-        </ThirdPersonCamera>
+        </ThirdPersonCamera>}
         {Players.map((player: any) => <Model
           ref={player.ref}
           key={player.id}
