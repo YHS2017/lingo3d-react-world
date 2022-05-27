@@ -1,8 +1,8 @@
-import { createRef, useEffect, useRef, useState } from "react"
+import { createRef, useRef, useState } from "react"
 import type * as Colyseus from "colyseus.js"
 import client from "./utils/cliten"
 import { Button, Card, Input, message, Space, Table } from "antd"
-import { Editor, Find, HTML, Joystick, Keyboard, Library, Model, SceneGraph, ThirdPersonCamera, Toolbar, useLoop, usePreload, World } from "lingo3d-react"
+import { Editor, Find, HTML, Joystick, Keyboard, Library, Model, SceneGraph, ThirdPersonCamera, Toolbar, types, useLoop, usePreload, World } from "lingo3d-react"
 import './App.css'
 
 const App = () => {
@@ -11,14 +11,6 @@ const App = () => {
   const [RoomList, setRoomList] = useState<any>([])
   const lobbyroom = useRef<Colyseus.Room>()
   const gameroom = useRef<Colyseus.Room>()
-
-  const progress = usePreload([
-    "hql.fbx",
-    "Standing.fbx",
-    "Running.fbx",
-    "club.glb",
-    "sky2.jpeg"
-  ], 15)
 
   // 其他玩家
   const [Players, setPlayers] = useState<any[]>([])
@@ -37,6 +29,14 @@ const App = () => {
 
   // 编辑开关
   const [CanEditor, setCanEditor] = useState(false)
+
+  const progress = usePreload([
+    "hql.fbx",
+    "Standing.fbx",
+    "Running.fbx",
+    "club.glb",
+    "sky2.jpeg"
+  ], 15)
 
   const initLobbyLisener = () => {
     lobbyroom.current?.onMessage('rooms', (rooms) => {
@@ -77,9 +77,9 @@ const App = () => {
         let players: any[] = []
         state.players.forEach((player: any) => {
           if (player.id === gameroom.current?.sessionId) {
-            me = { ...Me, ...player, ref: createRef() }
+            me = { ...player, ref: createRef<types.Model>() }
           } else {
-            players.push({ ...player, ref: createRef() })
+            players.push({ ...player, ref: createRef<types.Model>() })
           }
         })
         console.log(me, players)
@@ -88,13 +88,12 @@ const App = () => {
       })
 
       gameroom.current.state.players.onAdd = (player: any, key: string) => {
-        console.log(player);
         player.onChange = (changes: any) => {
-          console.log(changes);
           let temp: any = {};
           changes.forEach((change: any) => {
-            temp[change.key] = change.value;
+            temp[change.field] = change.value;
           })
+          console.log(temp);
           if (Me && Me.id === key) {
             setMe({ ...Me, ...temp })
           } else {
@@ -107,7 +106,7 @@ const App = () => {
           }
         }
         if (Me && Me.id !== key) {
-          setPlayers([...Players, { ...player, ref: createRef() }])
+          setPlayers([...Players, { ...player, ref: createRef<types.Model>() }])
         }
       }
 
@@ -131,6 +130,8 @@ const App = () => {
   }
 
   const keychange = (keys: any) => {
+    if (!(Me && Me.ref.current)) return
+    console.log(Me.ref.current)
     let player: any = { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: Me.ref.current.ry }
     if (keys.includes("w") && !keys.includes("s") && !keys.includes("a") && !keys.includes("d")) {
       player = { ...player, ry: 0, motion: "run" }
