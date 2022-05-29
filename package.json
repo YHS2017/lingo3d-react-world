@@ -9,12 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@colyseus/ws-transport": "^0.14.21",
+    "antd": "^4.20.6",
+    "colyseus": "^0.14.23",
+    "colyseus.js": "^0.14.13",
     "express": "^4.18.1",
     "lingo3d-react": "^1.2.98",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "socket.io": "^4.5.0",
-    "socket.io-client": "^4.5.0"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
