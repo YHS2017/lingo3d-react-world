@@ -1,22 +1,47 @@
-const { GameRoom } = require("./room")
-const { Server, LobbyRoom } = require("colyseus")
-const { createServer } = require("http")
-const express = require("express")
-const { WebSocketTransport } = require("@colyseus/ws-transport")
-const port = Number(process.env.port) || 5000
+const express = require('express');
+const http = require('http');
+const io = require('socket.io');
+const Game = require('./game');
 
-const app = express()
-app.use(express.json())
+const app = express();
 
-const gameServer = new Server({
-  transport: new WebSocketTransport({
-    server: createServer(app)
-  })
+const server = http.createServer(app);
+
+const socket = io(server, {
+  cors: {
+    origin: '*'
+  }
 });
 
-gameServer.define("lobby", LobbyRoom);
-gameServer.define("gameroom", GameRoom).enableRealtimeListing();
+const game = new Game();
 
-gameServer.listen(port, undefined, undefined, () => {
-  console.log(`Listening on ws://localhost:${port}`)
-})
+socket.on('connect', (client) => {
+  console.log(`Client connected:${client.id}`);
+  const player = game.addPlayer(client.id);
+  const room = game.getRoom(player.roomId);
+  socket.to(client.id).emit('connected', { player, players: room.players.filter(p => p.id !== player.id) });
+
+  client.on('join', (joinplayer) => {
+    console.log(`Client joined:${client.id}`);
+    client.join(joinplayer.roomId);
+    socket.to(joinplayer.roomId).emit('joined', joinplayer);
+  })
+
+  client.on('disconnect', () => {
+    console.log(`Client disconnected:${client.id}`);
+    const player = { ...game.getPlayer(client.id) };
+    game.removePlayer(player);
+    const room = game.getRoom(player.roomId);
+    if (room) {
+      socket.to(room.id).emit('leaved', client.id);
+    }
+  });
+
+  client.on('update', (update_player) => {
+    socket.to(update_player.roomId).emit('update', update_player);
+  });
+});
+
+server.listen(5000, () => {
+  console.log('Server started on port 5000');
+});

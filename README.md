@@ -6,10 +6,10 @@
 yarn install
 ```
 
-#### 2.启动 socket 服务
+#### 2.启动socket服务
 
 ```
-yarn serve
+yarn server
 ```
 
 #### 3.启动网页
@@ -17,3 +17,4 @@ yarn serve
 ```
 yarn dev
 ```
+
