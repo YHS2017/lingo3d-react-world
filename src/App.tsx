@@ -1,8 +1,9 @@
-import { createRef, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import type * as Colyseus from "colyseus.js"
 import client from "./utils/cliten"
 import { Button, Card, Input, message, Space, Table } from "antd"
 import { Editor, Find, HTML, Joystick, Keyboard, Library, Model, SceneGraph, ThirdPersonCamera, Toolbar, types, useLoop, usePreload, World } from "lingo3d-react"
+import People from "./components/people"
 import './App.css'
 
 const App = () => {
@@ -12,7 +13,7 @@ const App = () => {
   const lobbyroom = useRef<Colyseus.Room>()
   const gameroom = useRef<Colyseus.Room>()
 
-  // 其他玩家
+  // 玩家
   const [Players, setPlayers] = useState<any[]>([])
 
   // 当前玩家
@@ -77,36 +78,32 @@ const App = () => {
         let players: any[] = []
         state.players.forEach((player: any) => {
           if (player.id === gameroom.current?.sessionId) {
-            me = { ...player, ref: createRef<types.Model>() }
+            me = player
           } else {
-            players.push({ ...player, ref: createRef<types.Model>() })
+            players.push(player)
           }
         })
-        console.log(me, players)
         setMe(me)
         setPlayers(players)
       })
 
       gameroom.current.state.players.onAdd = (player: any, key: string) => {
         player.onChange = (changes: any) => {
+          if (gameroom.current?.sessionId === key) return
           let temp: any = {};
           changes.forEach((change: any) => {
             temp[change.field] = change.value;
           })
           console.log(temp);
-          if (Me && Me.id === key) {
-            setMe({ ...Me, ...temp })
-          } else {
-            setPlayers(Players.map((p: any) => {
-              if (p.id === player.id) {
-                return { ...p, ...temp }
-              }
-              return p
-            }))
-          }
+          setPlayers(Players.map((p: any) => {
+            if (p.id === player.id) {
+              return { ...p, ...temp }
+            }
+            return p
+          }))
         }
-        if (Me && Me.id !== key) {
-          setPlayers([...Players, { ...player, ref: createRef<types.Model>() }])
+        if (gameroom.current?.sessionId !== key) {
+          setPlayers([...Players, player])
         }
       }
 
@@ -129,38 +126,44 @@ const App = () => {
     setPage("room")
   }
 
+  const update = (player: any) => {
+    if (gameroom.current) {
+      console.log(player);
+      // gameroom.current.send('update', player)
+    }
+  }
+
   const keychange = (keys: any) => {
-    if (!(Me && Me.ref.current)) return
-    console.log(Me.ref.current)
-    let player: any = { id: Me.id, roomId: Me.roomId, x: Me.ref.current.x, y: Me.ref.current.y, z: Me.ref.current.z, ry: Me.ref.current.ry }
+    if (!Me) return
+    let player: any;
     if (keys.includes("w") && !keys.includes("s") && !keys.includes("a") && !keys.includes("d")) {
-      player = { ...player, ry: 0, motion: "run" }
+      player = { ...Me, iry: 0, motion: "run" }
     }
     if (keys.includes("s") && !keys.includes("w") && !keys.includes("a") && !keys.includes("d")) {
-      player = { ...player, ry: 180, motion: "run" }
+      player = { ...Me, iry: 180, motion: "run" }
     }
     if (keys.includes("a") && !keys.includes("w") && !keys.includes("s") && !keys.includes("d")) {
-      player = { ...player, ry: 90, motion: "run" }
+      player = { ...Me, iry: 90, motion: "run" }
     }
     if (keys.includes("d") && !keys.includes("w") && !keys.includes("s") && !keys.includes("a")) {
-      player = { ...player, ry: -90, motion: "run" }
+      player = { ...Me, iry: -90, motion: "run" }
     }
     if (keys.length >= 2 && keys.includes("w") && keys.includes("a")) {
-      player = { ...player, ry: 45, motion: "run" }
+      player = { ...Me, iry: 45, motion: "run" }
     }
     if (keys.length >= 2 && keys.includes("w") && keys.includes("d")) {
-      player = { ...player, ry: -45, motion: "run" }
+      player = { ...Me, iry: -45, motion: "run" }
     }
     if (keys.length >= 2 && keys.includes("s") && keys.includes("a")) {
-      player = { ...player, ry: 135, motion: "run" }
+      player = { ...Me, iry: 135, motion: "run" }
     }
     if (keys.length >= 2 && keys.includes("s") && keys.includes("d")) {
-      player = { ...player, ry: -135, motion: "run" }
+      player = { ...Me, iry: -135, motion: "run" }
     }
     if (!(keys.includes("w") || keys.includes("s") || keys.includes("a") || keys.includes("d"))) {
-      player = { ...player, motion: "idle" }
+      player = { ...Me, motion: "idle" }
     }
-    gameroom.current?.send("update", player)
+    setMe(player)
   }
 
   const onkeydown = (key: any) => {
@@ -206,20 +209,8 @@ const App = () => {
   }
 
   useLoop(() => {
-    if (Me && Me.ref) {
-      if (Me.motion === "run") {
-        Me.ref.current.moveForward(-Math.cos(Math.PI / 180 * Me.ry) * 6)
-        Me.ref.current.moveRight(Math.sin(Math.PI / 180 * Me.ry) * 6)
-      }
-    }
-
     let temp: any = null
     Players.forEach((player: any) => {
-      if (player.motion === "run" && player.ref.current) {
-        player.ref.current.moveForward(-Math.cos(Math.PI / 180 * player.ry) * 6)
-        player.ref.current.moveRight(Math.sin(Math.PI / 180 * player.ry) * 6)
-      }
-
       const s = (Me.x - player.x) * (Me.x - player.x) + (Me.z - player.z) * (Me.z - player.z)
       if (s < 10000) {
         if (temp === null) {
@@ -325,9 +316,17 @@ const App = () => {
   return (
     <>
       <World ambientOcclusion>
-        {Me && <ThirdPersonCamera active mouseControl lockTargetRotation={Me.motion === "run"}>
-          <Model
-            ref={Me.ref}
+        {Me && <ThirdPersonCamera
+          active
+          mouseControl
+          lockTargetRotation={Me.motion === "run"}
+          x={Me.x}
+          y={Me.y}
+          z={Me.z}
+        >
+          <People
+            pid={Me.id}
+            update={update}
             src="hql.fbx"
             physics="character"
             animations={{ idle: "Standing.fbx", run: "Running.fbx" }}
@@ -335,10 +334,14 @@ const App = () => {
             x={Me.x}
             y={Me.y}
             z={Me.z}
-            innerRotationX={Me.rx}
-            innerRotationY={Me.ry}
-            innerRotationZ={Me.rz}
-            boxVisible
+            autoMove={true}
+            step={6}
+            rotationX={Me.rx}
+            rotationY={Me.ry}
+            rotationZ={Me.rz}
+            innerRotationX={Me.irx}
+            innerRotationY={Me.iry}
+            innerRotationZ={Me.irz}
           >
             <Find name="Wolf3D_Head">
               <HTML>
@@ -348,10 +351,10 @@ const App = () => {
             <Find name="Wolf3D_Outfit_Top" >
               {renderMenu()}
             </Find>
-          </Model>
+          </People>
         </ThirdPersonCamera>}
-        {Players.map((player: any) => <Model
-          ref={player.ref}
+        {Players.map((player: any) => <People
+          pid={player.id}
           key={player.id}
           src="hql.fbx"
           physics="character"
@@ -360,16 +363,21 @@ const App = () => {
           x={player.x}
           y={player.y}
           z={player.z}
-          innerRotationX={player.rx}
-          innerRotationY={player.ry}
-          innerRotationZ={player.rz}
+          autoMove={true}
+          step={6}
+          rotationX={player.rx}
+          rotationY={player.ry}
+          rotationZ={player.rz}
+          innerRotationX={player.irx}
+          innerRotationY={player.iry}
+          innerRotationZ={player.irz}
         >
           <Find name="Wolf3D_Head">
             <HTML>
               <div className="name">{player.uname}</div>
             </HTML>
           </Find>
-        </Model>)}
+        </People>)}
         <Model src="club.glb" physics="map" scale={20} />
         {CanEditor ?
           <>

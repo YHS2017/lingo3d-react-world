@@ -13,6 +13,9 @@ defineTypes(Player, {
   rx: "number",
   ry: "number",
   rz: "number",
+  inx: "number",
+  iny: "number",
+  inz: "number",
   motion: "string"
 });
 
@@ -27,13 +30,16 @@ class State extends Schema {
     this.players.set(sessionId, new Player().assign({
       id: sessionId,
       uname: options.uname,
-      x: 100 * Math.random() + 400,
-      y: -867.18,
-      z: 100 * Math.random() + 200,
+      x: 0,
+      y: -950,
+      z: 0,
       rx: 0,
       ry: 0,
       rz: 0,
-      motion: "idle"
+      inx: 0,
+      iny: 0,
+      inz: 0,
+      motion: 'idle'
     }))
   }
 
@@ -62,6 +68,15 @@ class State extends Schema {
     }
     if (data.rz) {
       player.rz = data.rz
+    }
+    if (data.inx) {
+      player.inx = data.inx
+    }
+    if (data.iny) {
+      player.iny = data.iny
+    }
+    if (data.inz) {
+      player.inz = data.inz
     }
     if (data.motion) {
       player.motion = data.motion
