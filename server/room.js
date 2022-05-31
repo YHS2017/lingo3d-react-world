@@ -10,13 +10,13 @@ defineTypes(Player, {
   x: "number",
   y: "number",
   z: "number",
-  rx: "number",
-  ry: "number",
-  rz: "number",
-  inx: "number",
-  iny: "number",
-  inz: "number",
-  motion: "string"
+  rotationX: "number",
+  rotationY: "number",
+  rotationZ: "number",
+  innerRotationX: "number",
+  innerRotationY: "number",
+  innerRotationZ: "number",
+  animation: "string"
 });
 
 class State extends Schema {
@@ -33,13 +33,13 @@ class State extends Schema {
       x: 0,
       y: -950,
       z: 0,
-      rx: 0,
-      ry: 0,
-      rz: 0,
-      inx: 0,
-      iny: 0,
-      inz: 0,
-      motion: 'idle'
+      rotationX: 0,
+      rotationY: 0,
+      rotationZ: 0,
+      innerRotationX: 0,
+      innerRotationY: 0,
+      innerRotationZ: 0,
+      animation: 'idle'
     }))
   }
 
@@ -51,36 +51,7 @@ class State extends Schema {
   updatePlayer = (sessionId, data) => {
     console.log(`GameRoom update player ${sessionId}:${JSON.stringify(data)}`)
     const player = this.players.get(sessionId)
-    if (data.x) {
-      player.x = data.x
-    }
-    if (data.y) {
-      player.y = data.y
-    }
-    if (data.z) {
-      player.z = data.z
-    }
-    if (data.rx) {
-      player.rx = data.rx
-    }
-    if (data.ry) {
-      player.ry = data.ry
-    }
-    if (data.rz) {
-      player.rz = data.rz
-    }
-    if (data.inx) {
-      player.inx = data.inx
-    }
-    if (data.iny) {
-      player.iny = data.iny
-    }
-    if (data.inz) {
-      player.inz = data.inz
-    }
-    if (data.motion) {
-      player.motion = data.motion
-    }
+    player.assign(data)
   }
 }
 

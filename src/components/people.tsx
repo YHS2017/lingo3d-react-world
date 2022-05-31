@@ -21,25 +21,25 @@ const People: React.FC<{
   move?: { x: number, y: number },
   update?: Function,
   children?: React.ReactNode
-}> = ({ children, pid, autoMove, step, rotationY = 0, animation, update, ...imodel }) => {
+}> = ({ children, pid, autoMove = false, step = 4, update, ...imodel }) => {
   const ref = useRef<any>()
-
   useLoop(() => {
-    if (ref.current && autoMove && step && animation === 'run') {
-      ref.current.moveForward(step * Math.sin(rotationY));
-      ref.current.moveRight(step * Math.sin(rotationY));
+    if (ref.current) {
+      if (autoMove && step && imodel.animation === 'run') {
+        ref.current.moveForward(-1 * step * Math.cos(Math.PI / 180 * (imodel.innerRotationY || 0)));
+        ref.current.moveRight(step * Math.sin(Math.PI / 180 * (imodel.innerRotationY || 0)));
+      }
       update?.({
-        id: pid,
         x: ref.current.x,
         y: ref.current.y,
         z: ref.current.z,
-        ry: ref.current.rotationY,
-        motion: animation
+        innerRotationY: imodel.innerRotationY,
+        animation: imodel.animation
       })
     }
   })
   return (
-    <Model ref={ref} {...imodel}>
+    <Model key={pid} ref={ref} {...imodel} >
       {children}
     </Model>
   )

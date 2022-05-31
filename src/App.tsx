@@ -2,19 +2,19 @@ import { useRef, useState } from "react"
 import type * as Colyseus from "colyseus.js"
 import client from "./utils/cliten"
 import { Button, Card, Input, message, Space, Table } from "antd"
-import { Editor, Find, HTML, Joystick, Keyboard, Library, Model, SceneGraph, ThirdPersonCamera, Toolbar, types, useLoop, usePreload, World } from "lingo3d-react"
+import { Editor, Find, HTML, Joystick, Keyboard, Library, Model, SceneGraph, ThirdPersonCamera, Toolbar, useLoop, usePreload, World } from "lingo3d-react"
 import People from "./components/people"
 import './App.css'
 
 const App = () => {
   const [Page, setPage] = useState<string>('login')
   const [UserName, setUserName] = useState("");
-  const [RoomList, setRoomList] = useState<any>([])
+  const [RoomList, setRoomList] = useState<any[]>([])
   const lobbyroom = useRef<Colyseus.Room>()
   const gameroom = useRef<Colyseus.Room>()
 
-  // 玩家
-  const [Players, setPlayers] = useState<any[]>([])
+  // 其他玩家
+  const [Others, setOthers] = useState<any[]>([])
 
   // 当前玩家
   const [Me, setMe] = useState<any>(null)
@@ -39,6 +39,7 @@ const App = () => {
     "sky2.jpeg"
   ], 15)
 
+  // 初始化大厅事件监听
   const initLobbyLisener = () => {
     lobbyroom.current?.onMessage('rooms', (rooms) => {
       setRoomList(rooms)
@@ -63,6 +64,7 @@ const App = () => {
     });
   }
 
+  // 前往大厅
   const toHome = async () => {
     if (UserName) {
       lobbyroom.current = await client.joinOrCreate("lobby")
@@ -71,97 +73,88 @@ const App = () => {
     }
   }
 
+  // 初始化游戏房间事件监听
   const initGameRoomLisener = () => {
     if (gameroom.current) {
-      gameroom.current.onStateChange.once((state) => {
-        let me = null
-        let players: any[] = []
-        state.players.forEach((player: any) => {
-          if (player.id === gameroom.current?.sessionId) {
-            me = player
-          } else {
-            players.push(player)
-          }
-        })
-        setMe(me)
-        setPlayers(players)
-      })
-
       gameroom.current.state.players.onAdd = (player: any, key: string) => {
+        if (gameroom.current && gameroom.current.sessionId === key) {
+          setMe(player)
+          return
+        }
+        setOthers((players) => [...players, player])
+        message.success(`${player.uname}加入了游戏`)
+        // 添加更新监听
         player.onChange = (changes: any) => {
-          if (gameroom.current?.sessionId === key) return
           let temp: any = {};
           changes.forEach((change: any) => {
             temp[change.field] = change.value;
           })
-          console.log(temp);
-          setPlayers(Players.map((p: any) => {
+          setOthers((players) => players.map((p: any) => {
             if (p.id === player.id) {
               return { ...p, ...temp }
             }
             return p
           }))
         }
-        if (gameroom.current?.sessionId !== key) {
-          setPlayers([...Players, player])
-        }
       }
 
       gameroom.current.state.players.onRemove = (player: any, key: string) => {
-        message.info(`玩家${player.name}`);
-        setPlayers(Players.filter((p: any) => p.id !== key))
+        message.info(`玩家${player.uname}离开了游戏`);
+        setOthers(Others.filter((p: any) => p.id !== key))
       }
     }
   }
 
+  // 加入房间
   const joinRoom = async (roomId: string) => {
     gameroom.current = await client.joinById(roomId, { uname: UserName })
     initGameRoomLisener()
     setPage("room")
   }
 
+  // 创建房间
   const createRoom = async () => {
     gameroom.current = await client.create('gameroom', { uname: UserName })
     initGameRoomLisener()
     setPage("room")
   }
 
-  const update = (player: any) => {
+  const update = (changes: any) => {
     if (gameroom.current) {
-      console.log(player);
-      // gameroom.current.send('update', player)
+      gameroom.current.send('update', changes)
     }
   }
 
+  // 按键监听
   const keychange = (keys: any) => {
     if (!Me) return
-    let player: any;
+    let player: any = Me || {};
     if (keys.includes("w") && !keys.includes("s") && !keys.includes("a") && !keys.includes("d")) {
-      player = { ...Me, iry: 0, motion: "run" }
+      player = { ...player, innerRotationY: 0, animation: "run" }
     }
     if (keys.includes("s") && !keys.includes("w") && !keys.includes("a") && !keys.includes("d")) {
-      player = { ...Me, iry: 180, motion: "run" }
+      player = { ...player, innerRotationY: 180, animation: "run" }
     }
     if (keys.includes("a") && !keys.includes("w") && !keys.includes("s") && !keys.includes("d")) {
-      player = { ...Me, iry: 90, motion: "run" }
+      player = { ...player, innerRotationY: 90, animation: "run" }
     }
     if (keys.includes("d") && !keys.includes("w") && !keys.includes("s") && !keys.includes("a")) {
-      player = { ...Me, iry: -90, motion: "run" }
+      player = { ...player, innerRotationY: -90, animation: "run" }
     }
     if (keys.length >= 2 && keys.includes("w") && keys.includes("a")) {
-      player = { ...Me, iry: 45, motion: "run" }
+      player = { ...player, innerRotationY: 45, animation: "run" }
     }
     if (keys.length >= 2 && keys.includes("w") && keys.includes("d")) {
-      player = { ...Me, iry: -45, motion: "run" }
+      player = { ...player, innerRotationY: -45, animation: "run" }
     }
     if (keys.length >= 2 && keys.includes("s") && keys.includes("a")) {
-      player = { ...Me, iry: 135, motion: "run" }
+      player = { ...player, innerRotationY: 135, animation: "run" }
     }
     if (keys.length >= 2 && keys.includes("s") && keys.includes("d")) {
-      player = { ...Me, iry: -135, motion: "run" }
+      player = { ...player, innerRotationY: -135, animation: "run" }
     }
     if (!(keys.includes("w") || keys.includes("s") || keys.includes("a") || keys.includes("d"))) {
-      player = { ...Me, motion: "idle" }
+      player = { ...player, animation: "idle" }
     }
     setMe(player)
   }
@@ -210,7 +203,7 @@ const App = () => {
 
   useLoop(() => {
     let temp: any = null
-    Players.forEach((player: any) => {
+    Others.forEach((player: any) => {
       const s = (Me.x - player.x) * (Me.x - player.x) + (Me.z - player.z) * (Me.z - player.z)
       if (s < 10000) {
         if (temp === null) {
@@ -319,29 +312,29 @@ const App = () => {
         {Me && <ThirdPersonCamera
           active
           mouseControl
-          lockTargetRotation={Me.motion === "run"}
+          lockTargetRotation={Me.animation === "run"}
           x={Me.x}
           y={Me.y}
           z={Me.z}
         >
           <People
             pid={Me.id}
-            update={update}
             src="hql.fbx"
             physics="character"
             animations={{ idle: "Standing.fbx", run: "Running.fbx" }}
-            animation={Me.motion}
+            animation={Me.animation}
             x={Me.x}
             y={Me.y}
             z={Me.z}
             autoMove={true}
             step={6}
-            rotationX={Me.rx}
-            rotationY={Me.ry}
-            rotationZ={Me.rz}
-            innerRotationX={Me.irx}
-            innerRotationY={Me.iry}
-            innerRotationZ={Me.irz}
+            rotationX={Me.rotationX}
+            rotationY={Me.rotationY}
+            rotationZ={Me.rotationZ}
+            innerRotationX={Me.innerRotationX}
+            innerRotationY={Me.innerRotationY}
+            innerRotationZ={Me.innerRotationZ}
+            update={update}
           >
             <Find name="Wolf3D_Head">
               <HTML>
@@ -353,24 +346,24 @@ const App = () => {
             </Find>
           </People>
         </ThirdPersonCamera>}
-        {Players.map((player: any) => <People
+        {Others.map((player: any) => <People
           pid={player.id}
           key={player.id}
           src="hql.fbx"
           physics="character"
           animations={{ idle: "Standing.fbx", run: "Running.fbx" }}
-          animation={player.motion}
+          animation={player.animation}
           x={player.x}
           y={player.y}
           z={player.z}
           autoMove={true}
           step={6}
-          rotationX={player.rx}
-          rotationY={player.ry}
-          rotationZ={player.rz}
-          innerRotationX={player.irx}
-          innerRotationY={player.iry}
-          innerRotationZ={player.irz}
+          rotationX={player.rotationX}
+          rotationY={player.rotationY}
+          rotationZ={player.rotationZ}
+          innerRotationX={player.innerRotationX}
+          innerRotationY={player.innerRotationY}
+          innerRotationZ={player.innerRotationZ}
         >
           <Find name="Wolf3D_Head">
             <HTML>
