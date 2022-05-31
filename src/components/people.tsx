@@ -25,16 +25,22 @@ const People: React.FC<{
   const ref = useRef<any>()
   useLoop(() => {
     if (ref.current) {
-      if (autoMove && step && imodel.animation === 'run') {
-        ref.current.moveForward(-1 * step * Math.cos(Math.PI / 180 * (imodel.innerRotationY || 0)));
-        ref.current.moveRight(step * Math.sin(Math.PI / 180 * (imodel.innerRotationY || 0)));
+      if (autoMove && step && ref.current.animation === 'run') {
+        ref.current.moveForward(-1 * step * Math.cos(Math.PI / 180 * (ref.current.innerRotationY || 0)));
+        ref.current.moveRight(step * Math.sin(Math.PI / 180 * (ref.current.innerRotationY || 0)));
+        console.log(ref.current)
       }
       update?.({
         x: ref.current.x,
         y: ref.current.y,
         z: ref.current.z,
-        innerRotationY: imodel.innerRotationY,
-        animation: imodel.animation
+        rotationX: ref.current.rotationX,
+        rotationY: ref.current.rotationY,
+        rotationZ: ref.current.rotationZ,
+        innerRotationX: ref.current.innerRotationX,
+        innerRotationY: ref.current.innerRotationY,
+        innerRotationZ: ref.current.innerRotationZ,
+        animation: ref.current.animation
       })
     }
   })

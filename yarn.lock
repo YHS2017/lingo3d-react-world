@@ -192,9 +192,9 @@
     js-tokens "^4.0.0"
 
 "@babel/parser@^7.16.7", "@babel/parser@^7.18.0":
-  version "7.18.3"
-  resolved "https://registry.npmmirror.com/@babel/parser/-/parser-7.18.3.tgz#39e99c7b0c4c56cef4d1eed8de9f506411c2ebc2"
-  integrity sha512-rL50YcEuHbbauAFAysNsJA4/f89fGTOBRNs9P81sniKnKAr4xULe5AecolcsKbi88xu0ByWYDj/S1AJ3FSFuSQ==
+  version "7.18.4"
+  resolved "https://registry.npmmirror.com/@babel/parser/-/parser-7.18.4.tgz#6774231779dd700e0af29f6ad8d479582d7ce5ef"
+  integrity sha512-FDge0dFazETFcxGw/EXzOkN8uJp0PC7Qbm+Pe9T+av2zlBpOgunFHkQPPn+eRuClU73JF+98D531UgayY89tow==
 
 "@babel/plugin-syntax-jsx@^7.17.12":
   version "7.17.12"
@@ -268,9 +268,9 @@
     globals "^11.1.0"
 
 "@babel/types@^7.16.7", "@babel/types@^7.17.0", "@babel/types@^7.17.12", "@babel/types@^7.18.0", "@babel/types@^7.18.2":
-  version "7.18.2"
-  resolved "https://registry.npmmirror.com/@babel/types/-/types-7.18.2.tgz#191abfed79ebe6f4242f643a9a5cbaa36b10b091"
-  integrity sha512-0On6B8A4/+mFUto5WERt3EEuG1NznDirvwca1O8UwXQHVY8g3R7OzYgxXdOfMwLO08UrpUD/2+3Bclyq+/C94Q==
+  version "7.18.4"
+  resolved "https://registry.npmmirror.com/@babel/types/-/types-7.18.4.tgz#27eae9b9fd18e9dccc3f9d6ad051336f307be354"
+  integrity sha512-ThN1mBcMq5pG/Vm2IcBmPPfyPXbd8S02rS+OBIDENdufvqC7Z/jHPCv9IcP01277aKtDI8g/2XysBN4hA8niiw==
   dependencies:
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
@@ -494,11 +494,6 @@
   resolved "https://registry.npmmirror.com/@types/prop-types/-/prop-types-15.7.5.tgz#5f19d2b85a98e9558036f6a3cacc8819420f05cf"
   integrity sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==
 
-"@types/qs@^6.9.7":
-  version "6.9.7"
-  resolved "https://registry.npmmirror.com/@types/qs/-/qs-6.9.7.tgz#63bb7d067db107cc1e457c303bc25d511febf6cb"
-  integrity sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==
-
 "@types/react-dom@^18.0.0":
   version "18.0.5"
   resolved "https://registry.npmmirror.com/@types/react-dom/-/react-dom-18.0.5.tgz#330b2d472c22f796e5531446939eacef8378444a"
@@ -569,16 +564,15 @@ ansi-styles@^3.2.1:
     color-convert "^1.9.0"
 
 antd@^4.20.6:
-  version "4.20.6"
-  resolved "https://registry.npmmirror.com/antd/-/antd-4.20.6.tgz#0d46a4b6128a717b4cad7ac6902311a0210f1d6f"
-  integrity sha512-JHEwCDjWTAJ1yxlC5QPb7LhRMvdhccN5lzMYDs72sp6VOiaXVGAlwols+F8nQQRaF9h/eA6yQyZ622y8b9vaoQ==
+  version "4.20.7"
+  resolved "https://registry.npmmirror.com/antd/-/antd-4.20.7.tgz#7f4e2f5f3620044323355386091967045cfe2c24"
+  integrity sha512-X2lP1AiN9K9se9ZuQvgpeku7Z1G7KqKTuJVt0lpwWzei4aRReG+hJWMSOAsy0HonRWI2nDc9XMIK+o/kul8EXQ==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons" "^4.7.0"
     "@ant-design/react-slick" "~0.28.1"
     "@babel/runtime" "^7.12.5"
     "@ctrl/tinycolor" "^3.4.0"
-    "@types/qs" "^6.9.7"
     classnames "^2.2.6"
     copy-to-clipboard "^3.2.0"
     lodash "^4.17.21"
@@ -908,9 +902,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.4.118:
-  version "1.4.141"
-  resolved "https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.141.tgz#4dd9119e8a99f1c83c51dfcf1bed79ea541f08d6"
-  integrity sha512-mfBcbqc0qc6RlxrsIgLG2wCqkiPAjEezHxGTu7p3dHHFOurH4EjS9rFZndX5axC8264rI1Pcbw8uQP39oZckeA==
+  version "1.4.142"
+  resolved "https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.142.tgz#70cc8871f7c0122b29256089989e67cee637b40d"
+  integrity sha512-ea8Q1YX0JRp4GylOmX4gFHIizi0j9GfRW4EkaHnkZp0agRCBB4ZGeCv17IEzIvBkiYVwfoKVhKZJbTfqCRdQdg==
 
 encodeurl@~1.0.2:
   version "1.0.2"
@@ -1324,23 +1318,23 @@ kareem@2.3.2:
   integrity sha512-STHz9P7X2L4Kwn72fA4rGyqyXdmrMSdxqHx9IXon/FXluXieaFA6KJ2upcHAHxQPQ0LeM/OjLrhFxifHewOALQ==
 
 lingo3d-react@^1.2.98:
-  version "1.2.158"
-  resolved "https://registry.npmmirror.com/lingo3d-react/-/lingo3d-react-1.2.158.tgz#1f7b59fd5e687536644146e99b9aec080ae12a9d"
-  integrity sha512-dBH1XKQXyn7PxtjvGLl3c1KbELpg3ynL+nPo1CO2NA9Qp7nhk8/HKjxMYI0/qpZRq/FsKCqdi+18DhzereN9HA==
+  version "1.2.165"
+  resolved "https://registry.npmmirror.com/lingo3d-react/-/lingo3d-react-1.2.165.tgz#8c0fb2631c473c722df593d4aa9f1275467bf0af"
+  integrity sha512-WPl8ddlb/TbcXZyqVziB/wOmCszHePMwzRGmeOfc+uDc8SmBDBkfxh/hdE3zsNmiZJy4xsxDFaAhzOwMW7PiZA==
   dependencies:
     "@lincode/hooks" "1.0.40"
     "@lincode/react-joystick" "1.0.6"
     "@lincode/react-reticle" "1.1.2"
     "@types/three" "0.140.0"
-    lingo3d "1.10.195"
+    lingo3d "1.10.200"
     nanoid "3"
     popmotion "11"
     stats.js "^0.17.0"
 
-lingo3d@1.10.195:
-  version "1.10.195"
-  resolved "https://registry.npmmirror.com/lingo3d/-/lingo3d-1.10.195.tgz#fcc5584d15500e19e5394c96c3e09430e20727a1"
-  integrity sha512-RZdIRFfCoSOnimDfWTPGTvuNs+gBGlGcCiLaiG+b0T+K735WsukOo0OJySCZdfAJrDKJBoUkXc/PDVY1GmCH9g==
+lingo3d@1.10.200:
+  version "1.10.200"
+  resolved "https://registry.npmmirror.com/lingo3d/-/lingo3d-1.10.200.tgz#19b4d1525b6fbbef446139bb8bf17bd313dcb9c9"
+  integrity sha512-eBXde29kwnT1mtnE0fwzPmXOFdGdB0BcMia3QDB6urSg49fR1+DvShmjwVu2HKCf56sAiS1IXRiIBYebcY6K6w==
   dependencies:
     "@lincode/events" "*"
     "@lincode/filetypes" "*"
@@ -2009,9 +2003,9 @@ rc-tree@~5.5.0:
     rc-virtual-list "^3.4.2"
 
 rc-trigger@^5.0.0, rc-trigger@^5.0.4, rc-trigger@^5.1.2, rc-trigger@^5.2.10:
-  version "5.2.19"
-  resolved "https://registry.npmmirror.com/rc-trigger/-/rc-trigger-5.2.19.tgz#67be65f424c9a461bd00627b4383ca1a7d184f64"
-  integrity sha512-RrHvNNiFR66IAl0Rh1s/5Pmfci7cNQ9WnNDLu+RHBkmaqwxJapX0CZssEXMmiOwbUta8l8YN+Hx7DOL47TOJQg==
+  version "5.3.1"
+  resolved "https://registry.npmmirror.com/rc-trigger/-/rc-trigger-5.3.1.tgz#acafadf3eaf384e7f466c303bfa0f34c8137d7b8"
+  integrity sha512-5gaFbDkYSefZ14j2AdzucXzlWgU2ri5uEjkHvsf1ynRhdJbKxNOnw4PBZ9+FVULNGFiDzzlVF8RJnR9P/xrnKQ==
   dependencies:
     "@babel/runtime" "^7.18.3"
     classnames "^2.2.6"
@@ -2140,9 +2134,9 @@ resolve@^1.22.0:
     supports-preserve-symlinks-flag "^1.0.0"
 
 rollup@^2.59.0:
-  version "2.75.1"
-  resolved "https://registry.npmmirror.com/rollup/-/rollup-2.75.1.tgz#9024223a8000f9ad936b8607c1bc7abcfcbdd1f1"
-  integrity sha512-zD73rq3Fanr/spmiybMqmGEvOpryj/heLqOb+lubxiXlo8azeJ/z306T2dJYuzfWZPQBS0OT++GXG6Lbd4ToKw==
+  version "2.75.4"
+  resolved "https://registry.npmmirror.com/rollup/-/rollup-2.75.4.tgz#c3518c326c98e508b628a93015a03a276c331f22"
+  integrity sha512-JgZiJMJkKImMZJ8ZY1zU80Z2bA/TvrL/7D9qcBCrfl2bP+HUaIw0QHUroB4E3gBpFl6CRFM1YxGbuYGtdAswbQ==
   optionalDependencies:
     fsevents "~2.3.2"
 
